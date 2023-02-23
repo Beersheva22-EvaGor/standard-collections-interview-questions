@@ -79,10 +79,17 @@ class StandardCollectionTest {
 		assertTrue(stack.isEmpty());
 		assertThrows(NoSuchElementException.class, stack::pop);
 		stack.push(111);
+		assertEquals(111, stack.getMax());
 		stack.push(222);
+		assertEquals(222, stack.getMax());
 		stack.push(312);
+		assertEquals(312, stack.getMax());
 		assertFalse(stack.isEmpty());
 		assertEquals(312, stack.pop());
+		assertEquals(222, stack.getMax());
+		stack.push(0);
+		assertEquals(222, stack.getMax());		
+		stack.pop();
 		stack.pop();
 		stack.pop();
 		assertTrue(stack.isEmpty());
