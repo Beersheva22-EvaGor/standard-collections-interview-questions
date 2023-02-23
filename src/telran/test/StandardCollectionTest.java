@@ -52,7 +52,6 @@ class StandardCollectionTest {
 
 	}
 	
-	final int NUM_AR = 1_000_000_000; 
 	@Test
 	void displayDigitStatistics() {
 		// solution in 1! line
@@ -63,7 +62,7 @@ class StandardCollectionTest {
 		
 		new Random().ints(-1, Integer.MAX_VALUE)
 		.boxed()
-		.limit(1000000)
+		.limit(1_000_000)
 		.flatMap(n -> 
 					Arrays.stream(String.valueOf(n).split("\\s*"))
 					.map(d-> Integer.parseInt(d))
@@ -71,6 +70,7 @@ class StandardCollectionTest {
 		.collect(Collectors.groupingBy(s -> s, Collectors.counting()))
 		.entrySet().stream().sorted((e1, e2) -> Long.compare(e2.getValue(), e1.getValue()))
 		.forEach(e -> System.out.printf("Digit %s:   %d\n", e.getKey(), e.getValue()));
+		
 	}
 
 	@Test

@@ -1,8 +1,6 @@
 package telran.util;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 public class StackInt {
@@ -20,13 +18,11 @@ public class StackInt {
 	public void push(int num) {
 		// adds number into top of stack
 		stack.add(num);
-		size++;
 		if (max.size() == 0 || num > max.get(max.size() - 1)) {
 			max.add(num);
-		} else {
-			max.add(max.get(max.size() - 1));
-		}
+		} 
 
+		size++;
 	}
 
 	public int pop() {
@@ -36,8 +32,10 @@ public class StackInt {
 		int lastIndex = stack.size() - 1;
 		Integer res = stack.get(lastIndex);
 		stack.remove(lastIndex);
+		if (max.get(max.size()-1).equals(res)) {
+			max.remove(max.size()-1);
+		}
 		size--;
-		max.remove(max.size()-1);
 		return res;
 	}
 
