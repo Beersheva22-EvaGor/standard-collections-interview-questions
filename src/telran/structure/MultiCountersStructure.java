@@ -1,22 +1,21 @@
 package telran.structure;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeMap;
 
 public class MultiCountersStructure implements MultiCounters {
 
-	HashMap<Object, Integer> structObjects;
-	ArrayList<HashSet<Object>> listFrequency;
+	HashMap<Object, Integer> struct;
+	TreeMap<Integer, HashSet<Object>> rbtree;
 
-	
 	public MultiCountersStructure() {
-		structObjects = new HashMap<> ();
-		listFrequency = new ArrayList<>();
+		struct = new HashMap<>();
+		rbtree = new TreeMap<>();
 	}
 	
+
 	@Override
 	public Integer addItem(Object item) {
 		// define frequency of occurrence + 1
@@ -24,49 +23,53 @@ public class MultiCountersStructure implements MultiCounters {
 		if (counter == null) {
 			counter = 0;
 		}
-		structObjects.put(item, ++counter);
-				
-		if (counter > listFrequency.size()) {
-			listFrequency.add(new HashSet<>());
+		struct.put(item, ++counter);
+
+		// remove object from the tree's node with old counter
+		removeObjFromTree(item, counter - 1);
+
+		// put with a new counter
+		HashSet<Object> set = rbtree.get(counter);
+		if (set == null) {
+			set = new HashSet<>();
 		}
-		resettleObjectInList(item, counter, counter - 1);
+		set.add(item);
+		rbtree.put(counter, set);
+
 		return counter;
 	}
 
-	private void resettleObjectInList(Object item, Integer counterNew, Integer counterOld) {
-		HashSet<Object> setNew = listFrequency.get(counterNew - 1); // counter - 1 e.g. indexing starts from 0
-		setNew.add(item);
-		if (counterOld > 0) {
-			HashSet<Object> setOld = listFrequency.get(counterOld - 1);
-			setOld.remove(item); 	// remove the object with old frequency
+	private void removeObjFromTree(Object item, Integer counter) {
+		if (counter > 0) {
+			HashSet<Object> set = rbtree.get(counter);
+			set.remove(item);
+			if (set.size() == 0) {
+				rbtree.remove(counter);
+			} else {
+				rbtree.put(counter, set);
+			}
 		}
 	}
-	
+
 	@Override
 	public Integer getValue(Object item) {
-		return structObjects.get(item);
+		return struct.get(item);
 	}
 
 	@Override
 	public boolean remove(Object item) {
 		Integer counter = getValue(item);
+		struct.remove(item);
+		
 		if (counter != null) {
-			structObjects.remove(item);
-			HashSet<Object> set = listFrequency.get(counter - 1);
-			set.remove(item);
-			if (counter > 0) {
-				listFrequency.get(counter - 2).add(item);
-			}
-			if (counter == listFrequency.size() && set.isEmpty()) {
-				listFrequency.remove(counter - 1);
-			}
+			removeObjFromTree(item, counter);
 		}
 		return counter == null ? false : true;
 	}
 
 	@Override
 	public Set<Object> getMaxItems() {
-		return listFrequency.get(listFrequency.size()-1);
+		return rbtree.lastEntry().getValue();
 	}
 
 }
