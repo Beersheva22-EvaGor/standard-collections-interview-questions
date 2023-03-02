@@ -15,22 +15,23 @@ class DictionaryTest {
 	@BeforeEach
 	void setUp() throws Exception {
 		dict = new Dictionary();
-		dict.addWord("abcdef");
-		dict.addWord("abcdef");
-		dict.addWord("lmn");
-		dict.addWord("lmn");
-		
+		dict.addWord("ABcdef");
+		dict.addWord("lmn");		
 	}
 
 	@Test
 	void addWordTest() {
+		dict.addWord("abcdef");
+		dict.addWord("AbcdeF");
+		
+		dict.addWord("LMN");
 		assertEquals(2, ((Dictionary)dict).size());
 	}
 	
 	@Test 
 	void getWordsByPrefixTest() {
 		ArrayList<String> expected = new ArrayList<>();
-		expected.add("abcdef");
+		expected.add("ABcdef");
 		assertEquals(expected, dict.getWordsByPrefix("abc"));
 	}
 }
