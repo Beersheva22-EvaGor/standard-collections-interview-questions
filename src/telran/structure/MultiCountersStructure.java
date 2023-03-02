@@ -1,75 +1,72 @@
 package telran.structure;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeMap;
 
 public class MultiCountersStructure implements MultiCounters {
-
-	HashMap<Object, Integer> struct;
-	TreeMap<Integer, HashSet<Object>> rbtree;
-
-	public MultiCountersStructure() {
-		struct = new HashMap<>();
-		rbtree = new TreeMap<>();
-	}
-	
+	private HashMap<Object, Integer> items = new HashMap<>();
+	private TreeMap<Integer, HashSet<Object>> counters = new TreeMap<>();
 
 	@Override
 	public Integer addItem(Object item) {
-		// define frequency of occurrence + 1
-		Integer counter = getValue(item);
-		if (counter == null) {
-			counter = 0;
-		}
-		struct.put(item, ++counter);
-
-		// remove object from the tree's node with old counter
-		removeObjFromTree(item, counter - 1);
-
-		// put with a new counter
-		HashSet<Object> set = rbtree.get(counter);
-		if (set == null) {
-			set = new HashSet<>();
-		}
-		set.add(item);
-		rbtree.put(counter, set);
-
-		return counter;
+		Integer count = items.getOrDefault(item, 0);
+		moveItemCounters(count, item);
+		items.put(item, ++count);
+		return count;
 	}
 
-	private void removeObjFromTree(Object item, Integer counter) {
-		if (counter > 0) {
-			HashSet<Object> set = rbtree.get(counter);
-			set.remove(item);
-			if (set.size() == 0) {
-				rbtree.remove(counter);
-			} else {
-				rbtree.put(counter, set);
-			}
+	private void moveItemCounters(Integer count, Object item) {
+		if (count != 0) {
+			removeCountersItem(count, item);
 		}
+
+		addCountersItem(count + 1, item);
+
+	}
+
+	private void addCountersItem(int counter, Object item) {
+		HashSet<Object> set = counters.get(counter);
+		if (set == null) {
+			set = new HashSet<>();
+			counters.put(counter, set);
+		}
+		set.add(item);
+
 	}
 
 	@Override
 	public Integer getValue(Object item) {
-		return struct.get(item);
+
+		return items.get(item);
 	}
 
 	@Override
 	public boolean remove(Object item) {
-		Integer counter = getValue(item);
-		struct.remove(item);
-		
-		if (counter != null) {
-			removeObjFromTree(item, counter);
+		boolean res = false;
+		Integer count = items.remove(item);
+		if (count != null) {
+			res = true;
+			removeCountersItem(count, item);
 		}
-		return counter == null ? false : true;
+		return res;
+	}
+
+	private void removeCountersItem(Integer count, Object item) {
+		HashSet<Object> set = counters.get(count);
+		set.remove(item);
+		if (set.isEmpty()) {
+			counters.remove(count);
+		}
+
 	}
 
 	@Override
 	public Set<Object> getMaxItems() {
-		return rbtree.lastEntry().getValue();
+		var lastEntry = counters.lastEntry();
+		return lastEntry != null ? lastEntry.getValue() : Collections.emptySet();
 	}
 
 }

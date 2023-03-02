@@ -2,35 +2,59 @@ package telran.test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import telran.structure.MultiCounters;
 import telran.structure.MultiCountersStructure;
 
 class MultiCountersStructureTest {
+	   MultiCounters multiCounters;
+		@BeforeEach
+		void setUp() throws Exception {
+			multiCounters = new MultiCountersStructure();
+			multiCounters.addItem(10);
+			multiCounters.addItem(10);
+			multiCounters.addItem(10);
+			multiCounters.addItem("abc");
+			multiCounters.addItem("abc");
+			multiCounters.addItem("lmn");
+			multiCounters.addItem("lmn");
+		}
 
-	@Test
-	void multiCountersTest() {
-		MultiCountersStructure struct = new MultiCountersStructure();
-		HashSet<Object> set = new HashSet<>();
-		set.add("Pardon");
+		@Test
+		void getMaxItemsTest() {
+			runTest(Arrays.asList(10));
+		}
+
+		private void runTest(List<Object> list) {
+			var set = multiCounters.getMaxItems();
+			list.forEach((item)-> assertTrue(set.contains(item)));
+			
+		}
+		@Test
+		void getValueTest() {
+			assertEquals(3, multiCounters.getValue(10));
+			assertNull(multiCounters.getValue("kuku"));
+		}
+		@Test
+		void addItemTest() {
+			Object[] items = {10, "abc"};
+			assertEquals(3,multiCounters.addItem("abc"));
+			runTest(Arrays.asList(items));
+			
+		}
+		@Test
+		void removeItemTest() {
+			Object[] items = {"abc", "lmn"};
+			assertTrue(multiCounters.remove(10));
+			runTest(Arrays.asList(items));
+			assertFalse(multiCounters.remove(10));
+		}
 		
-		assertEquals(1, struct.addItem("Pardon"));
-		assertEquals(1, struct.addItem("Sliha"));
-		assertEquals(2, struct.addItem("Pardon"));
-		assertEquals(3, struct.addItem("Pardon"));
-		assertEquals(1, struct.addItem("sliha"));
-		assertEquals(2, struct.addItem("Sliha"));
-		assertEquals(null, struct.getValue(1000));
-		assertFalse(struct.remove(1000));
-		assertEquals(set, struct.getMaxItems());
-		assertEquals(3, struct.addItem("Sliha"));
-		set.add("Sliha");
-		assertEquals(set, struct.getMaxItems());
-		assertTrue(struct.remove("Sliha"));
-		assertEquals(null, struct.getValue("Sliha"));
-		
-	}
 
 }
